@@ -229,5 +229,13 @@
 		"Version": "24",
 		"Debug": "disabled"
 	},
-	"UUID": "com.webcam-tools.streamdeck"
+	"UUID": "com.webcam-tools.streamdeck",
+	"Profiles": [
+		{
+			"Name": "profiles/webcam-tools",
+			"DeviceType": 7,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true
+		}
+	]
 }
