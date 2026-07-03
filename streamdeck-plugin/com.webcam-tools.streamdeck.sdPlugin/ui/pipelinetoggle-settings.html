@@ -61,15 +61,26 @@
                 select.appendChild(opt);
                 return;
             }
+
+            // A <select> with nothing explicitly chosen defaults to showing
+            // its *first* option as selected, but that's just the browser's
+            // rendering -- it doesn't fire a "change" event, so nothing
+            // actually gets saved. Without this placeholder, a freshly
+            // added key would visually show "detectors / motion" (whatever
+            // happens to be first) while its target setting stays empty --
+            // looks configured, does nothing when pressed.
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "— choose a control —";
+            select.appendChild(placeholder);
+
             for (const t of toggles) {
                 const opt = document.createElement("option");
                 opt.value = t.category + ":" + t.name;
                 opt.textContent = t.category + " / " + t.name.replace(/_/g, " ");
                 select.appendChild(opt);
             }
-            if (currentSettings.target) {
-                select.value = currentSettings.target;
-            }
+            select.value = currentSettings.target || "";
         }
 
         document.getElementById("target").addEventListener("change", (e) => {
