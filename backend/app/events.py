@@ -120,7 +120,13 @@ class EventStore:
                 return False
             self._events.remove(found)
 
-        self.video_path(event_id).unlink(missing_ok=True)
+        # Multiple events can share one clip file (see the piggyback case in
+        # RecordClipAction.trigger, where a motion event landing inside an
+        # already-recording clip just points at that clip instead of
+        # starting its own) -- only unlink the file if this event actually
+        # owns it, so deleting one doesn't break playback for the others.
+        if found.video == f"{event_id}.mp4":
+            (VIDEO_DIR / found.video).unlink(missing_ok=True)
         self.thumbnail_path(event_id).unlink(missing_ok=True)
         self._flags.pop(event_id, None)
         self._save_flags()
@@ -132,11 +138,45 @@ class EventStore:
             events = list(self._events)[:limit]
         return [{**e.to_dict(), "flagged": e.id in self._flags} for e in events]
 
-    def video_path(self, event_id: str) -> Path:
-        return VIDEO_DIR / f"{_require_valid_event_id(event_id)}.mp4"
+    def delete_unsaved(self) -> int:
+        """Bulk-deletes events that never got a clip -- e.g. the linked
+        action was off, or the recording failed to start. These sit
+        permanently blank in the log with nothing else to clear them.
+        Skips anything younger than the recording window in case it's
+        still mid-clip, and skips flagged events same as run_gc."""
+        cutoff = time.time() - 30
+        with self._lock:
+            keep, remove = [], []
+            for e in self._events:
+                if not e.video and e.timestamp < cutoff and e.id not in self._flags:
+                    remove.append(e)
+                else:
+                    keep.append(e)
+            self._events = deque(keep, maxlen=self._events.maxlen)
+
+        for e in remove:
+            self.thumbnail_path(e.id).unlink(missing_ok=True)
+        if remove:
+            self._rewrite_log()
+        return len(remove)
+
+    def video_path(self, event_id: str) -> Optional[Path]:
+        """Path to the clip file backing this event, or None if it doesn't
+        have one (yet, or ever). Resolved through the event's own `video`
+        filename rather than assuming `<id>.mp4`, since piggybacked events
+        (see delete() above) point at a different id's clip."""
+        event = self._lookup(event_id)
+        if event is None or not event.video:
+            return None
+        return VIDEO_DIR / event.video
 
     def thumbnail_path(self, event_id: str) -> Path:
         return THUMBNAIL_DIR / f"{_require_valid_event_id(event_id)}.jpg"
+
+    def _lookup(self, event_id: str) -> Optional[Event]:
+        _require_valid_event_id(event_id)
+        with self._lock:
+            return next((e for e in self._events if e.id == event_id), None)
 
     def get_thumbnail(self, event_id: str) -> Optional[bytes]:
         """Lazily extracts and caches the first frame of the event's video as
@@ -147,7 +187,7 @@ class EventStore:
             return cached.read_bytes()
 
         video = self.video_path(event_id)
-        if not video.exists():
+        if video is None or not video.exists():
             return None
 
         cap = cv2.VideoCapture(str(video))
@@ -186,7 +226,12 @@ class EventStore:
             self._events = deque(kept, maxlen=self._events.maxlen)
 
         for e in removed:
-            self.video_path(e.id).unlink(missing_ok=True)
+            # Same shared-clip ownership check as delete() -- and note we
+            # can't use self.video_path(e.id) here since these events have
+            # already been dropped from self._events above, so the _lookup()
+            # it depends on would always miss.
+            if e.video == f"{e.id}.mp4":
+                (VIDEO_DIR / e.video).unlink(missing_ok=True)
             self.thumbnail_path(e.id).unlink(missing_ok=True)
 
         if removed:

@@ -7,6 +7,7 @@ import {
   HardwareSettings,
   Rotation,
   Status,
+  clearUnsavedEvents,
   deleteEvent,
   getAdjustments,
   getCameras,
@@ -194,6 +195,20 @@ export default function App() {
     await deleteEvent(ev.id);
     setEvents((evs) => evs.filter((x) => x.id !== ev.id));
     setSelected((s) => (s && s.id === ev.id ? null : s));
+  };
+
+  const unsavedCount = events.filter((ev) => !ev.video).length;
+
+  const handleClearUnsaved = async () => {
+    if (unsavedCount === 0) return;
+    if (!window.confirm(`Delete ${unsavedCount} event${unsavedCount === 1 ? "" : "s"} that never saved a clip? This can't be undone.`)) {
+      return;
+    }
+    await clearUnsavedEvents();
+    // Server only clears events past the recording window (so a clip still
+    // in progress isn't yanked out from under it) -- refetch rather than
+    // filter client-side so anything it deliberately skipped stays visible.
+    getEvents().then(setEvents).catch(() => {});
   };
 
   const openEvent = (ev: CamEvent) => {
@@ -483,6 +498,15 @@ export default function App() {
                   Event log
                 </Tabs.Trigger>
               </Tabs.List>
+              {unsavedCount > 0 && (
+                <button
+                  className="clear-unsaved-btn"
+                  onClick={handleClearUnsaved}
+                  title="Delete events that never saved a clip"
+                >
+                  Clear not saved ({unsavedCount})
+                </button>
+              )}
               <button className="dock-collapse" onClick={() => setLogOpen(false)} title="Collapse">
                 ›
               </button>

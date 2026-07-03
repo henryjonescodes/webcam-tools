@@ -229,7 +229,7 @@ def event_video(event_id: str):
         path = events.video_path(event_id)
     except ValueError:
         raise HTTPException(404, "no such event")
-    if not path.exists():
+    if path is None or not path.exists():
         raise HTTPException(404, "no video for that event")
     return FileResponse(path, media_type="video/mp4")
 
@@ -351,6 +351,11 @@ def delete_event(event_id: str):
     if not deleted:
         raise HTTPException(404, "no such event")
     return {"id": event_id, "deleted": True}
+
+
+@app.post("/api/events/clear-unsaved")
+def clear_unsaved_events():
+    return {"deleted": events.delete_unsaved()}
 
 
 @app.post("/api/system/open-recordings-folder")
