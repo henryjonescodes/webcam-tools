@@ -181,7 +181,7 @@ body {
   color: #c8ccd3;
 }
 
-.clear-unsaved-btn {
+.clear-events-btn {
   background: none;
   border: 1px solid #3a2f2f;
   color: #d4a373;
@@ -193,7 +193,7 @@ body {
   margin-left: 8px;
 }
 
-.clear-unsaved-btn:hover {
+.clear-events-btn:hover {
   background: #2a1f1f;
   border-color: #d4a373;
 }

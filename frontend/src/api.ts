@@ -164,8 +164,8 @@ export async function deleteEvent(id: string): Promise<{ id: string; deleted: bo
   return res.json();
 }
 
-export async function clearUnsavedEvents(): Promise<{ deleted: number }> {
-  const res = await fetch("/api/events/clear-unsaved", { method: "POST" });
+export async function clearUnflaggedEvents(): Promise<{ deleted: number }> {
+  const res = await fetch("/api/events/clear-unflagged", { method: "POST" });
   return res.json();
 }
 

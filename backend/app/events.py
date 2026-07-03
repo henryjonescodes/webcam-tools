@@ -138,23 +138,25 @@ class EventStore:
             events = list(self._events)[:limit]
         return [{**e.to_dict(), "flagged": e.id in self._flags} for e in events]
 
-    def delete_unsaved(self) -> int:
-        """Bulk-deletes events that never got a clip -- e.g. the linked
-        action was off, or the recording failed to start. These sit
-        permanently blank in the log with nothing else to clear them.
-        Skips anything younger than the recording window in case it's
-        still mid-clip, and skips flagged events same as run_gc."""
+    def delete_unflagged(self) -> int:
+        """Bulk-deletes every event that isn't flagged (starred to keep),
+        clip file and all -- same ownership rule as delete() so a shared
+        piggybacked clip only gets unlinked once, by whichever event
+        actually owns it. Skips anything younger than the recording window
+        in case it's still mid-clip, same as run_gc."""
         cutoff = time.time() - 30
         with self._lock:
             keep, remove = [], []
             for e in self._events:
-                if not e.video and e.timestamp < cutoff and e.id not in self._flags:
+                if e.id not in self._flags and e.timestamp < cutoff:
                     remove.append(e)
                 else:
                     keep.append(e)
             self._events = deque(keep, maxlen=self._events.maxlen)
 
         for e in remove:
+            if e.video == f"{e.id}.mp4":
+                (VIDEO_DIR / e.video).unlink(missing_ok=True)
             self.thumbnail_path(e.id).unlink(missing_ok=True)
         if remove:
             self._rewrite_log()

@@ -7,7 +7,7 @@ import {
   HardwareSettings,
   Rotation,
   Status,
-  clearUnsavedEvents,
+  clearUnflaggedEvents,
   deleteEvent,
   getAdjustments,
   getCameras,
@@ -197,14 +197,18 @@ export default function App() {
     setSelected((s) => (s && s.id === ev.id ? null : s));
   };
 
-  const unsavedCount = events.filter((ev) => !ev.video).length;
+  const unflaggedCount = events.filter((ev) => !ev.flagged).length;
 
-  const handleClearUnsaved = async () => {
-    if (unsavedCount === 0) return;
-    if (!window.confirm(`Delete ${unsavedCount} event${unsavedCount === 1 ? "" : "s"} that never saved a clip? This can't be undone.`)) {
+  const handleClearUnflagged = async () => {
+    if (unflaggedCount === 0) return;
+    if (
+      !window.confirm(
+        `Delete ${unflaggedCount} event${unflaggedCount === 1 ? "" : "s"} and their clips? Flagged (★) events are kept. This can't be undone.`
+      )
+    ) {
       return;
     }
-    await clearUnsavedEvents();
+    await clearUnflaggedEvents();
     // Server only clears events past the recording window (so a clip still
     // in progress isn't yanked out from under it) -- refetch rather than
     // filter client-side so anything it deliberately skipped stays visible.
@@ -498,13 +502,13 @@ export default function App() {
                   Event log
                 </Tabs.Trigger>
               </Tabs.List>
-              {unsavedCount > 0 && (
+              {unflaggedCount > 0 && (
                 <button
-                  className="clear-unsaved-btn"
-                  onClick={handleClearUnsaved}
-                  title="Delete events that never saved a clip"
+                  className="clear-events-btn"
+                  onClick={handleClearUnflagged}
+                  title="Delete every event and its clip, except flagged ones"
                 >
-                  Clear not saved ({unsavedCount})
+                  Clear events ({unflaggedCount})
                 </button>
               )}
               <button className="dock-collapse" onClick={() => setLogOpen(false)} title="Collapse">

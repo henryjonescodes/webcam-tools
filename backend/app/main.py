@@ -353,9 +353,9 @@ def delete_event(event_id: str):
     return {"id": event_id, "deleted": True}
 
 
-@app.post("/api/events/clear-unsaved")
-def clear_unsaved_events():
-    return {"deleted": events.delete_unsaved()}
+@app.post("/api/events/clear-unflagged")
+def clear_unflagged_events():
+    return {"deleted": events.delete_unflagged()}
 
 
 @app.post("/api/system/open-recordings-folder")
