@@ -22,10 +22,11 @@ interface Toggles {
 	detectors: ToggleEntry[];
 	actions: ToggleEntry[];
 	image: ToggleEntry[];
+	classes: ToggleEntry[];
 }
 
 type Category = keyof Toggles;
-const CATEGORIES: Category[] = ["detectors", "actions", "image"];
+const CATEGORIES: Category[] = ["detectors", "actions", "image", "classes"];
 
 function parseTarget(target: string | undefined): { category: Category; name: string } | null {
 	if (!target) return null;
