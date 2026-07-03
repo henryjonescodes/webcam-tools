@@ -1,0 +1,233 @@
+{
+	"Name": "Webcam Tools",
+	"Version": "0.1.0.0",
+	"Author": "Webcam Tools",
+	"Actions": [
+		{
+			"Name": "Video Cell",
+			"UUID": "com.webcam-tools.streamdeck.videocell",
+			"Icon": "imgs/actions/videocell/icon",
+			"Tooltip": "Live thumbnail + entry point. Press: open the Webcam Tools panel (dials, status, web app). Long-press: launch the server if needed, then open the web app.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/videocell/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Launch",
+			"UUID": "com.webcam-tools.streamdeck.launch",
+			"Icon": "imgs/actions/launch/icon",
+			"Tooltip": "Press to start the Webcam Tools server. Once running, the icon flips to a stop glyph -- hold it to shut the server down.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/launch/key"
+				},
+				{
+					"Image": "imgs/actions/launch/stop"
+				}
+			]
+		},
+		{
+			"Name": "Status",
+			"UUID": "com.webcam-tools.streamdeck.status",
+			"Icon": "imgs/actions/status/icon",
+			"Tooltip": "Shows Webcam Tools's connection status. Press to refresh immediately.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/status/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Recording Status",
+			"UUID": "com.webcam-tools.streamdeck.recordingstatus",
+			"Icon": "imgs/actions/recordingstatus/icon",
+			"Tooltip": "Shows whether a clip is recording right now, and what triggered it (motion vs. manual). Press to refresh immediately.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/recordingstatus/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Open Web App",
+			"UUID": "com.webcam-tools.streamdeck.openweb",
+			"Icon": "imgs/actions/openweb/icon",
+			"Tooltip": "Opens the Webcam Tools web app in your default browser.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/openweb/key"
+				}
+			]
+		},
+		{
+			"Name": "Open Recordings Folder",
+			"UUID": "com.webcam-tools.streamdeck.openfolder",
+			"Icon": "imgs/actions/openfolder/icon",
+			"Tooltip": "Opens the recordings folder in Explorer on the Webcam Tools host machine.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/openfolder/key"
+				}
+			]
+		},
+		{
+			"Name": "Live Feed",
+			"UUID": "com.webcam-tools.streamdeck.livefeed",
+			"Icon": "imgs/actions/livefeed/icon",
+			"Tooltip": "Shows a live-updating snapshot thumbnail (~1 update/sec). Press to refresh immediately.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/livefeed/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Camera Dial",
+			"UUID": "com.webcam-tools.streamdeck.dial",
+			"Icon": "imgs/actions/dial/icon",
+			"Tooltip": "Rotate to adjust an image control (exposure, brightness, contrast, saturation); press to reset.",
+			"PropertyInspectorPath": "ui/dial-settings.html",
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "layouts/dial.json",
+				"TriggerDescription": {
+					"Rotate": "Adjust value",
+					"Push": "Reset to default"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/actions/dial/key",
+					"Title": "Dial",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Rotate",
+			"UUID": "com.webcam-tools.streamdeck.rotate",
+			"Icon": "imgs/actions/rotate/icon",
+			"Tooltip": "Cycles the camera's mount-orientation rotation (0 -> 90 -> 180 -> 270 -> 0), same setting as the web app.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/rotate/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Reset Camera Settings",
+			"UUID": "com.webcam-tools.streamdeck.reset",
+			"Icon": "imgs/actions/reset/icon",
+			"Tooltip": "Resets both hardware exposure and post-processing controls to their defaults.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/reset/key"
+				}
+			]
+		},
+		{
+			"Name": "Record Clip",
+			"UUID": "com.webcam-tools.streamdeck.recordclip",
+			"Icon": "imgs/actions/recordclip/icon",
+			"Tooltip": "Manually records a clip right now, independent of motion detection.",
+			"PropertyInspectorPath": "ui/global-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/recordclip/key"
+				}
+			]
+		},
+		{
+			"Name": "Pipeline Toggle",
+			"UUID": "com.webcam-tools.streamdeck.pipelinetoggle",
+			"Icon": "imgs/actions/pipelinetoggle/icon",
+			"Tooltip": "Configurable on/off button for any detector, action, or image-processing stage -- pick which one in the Property Inspector.",
+			"PropertyInspectorPath": "ui/pipelinetoggle-settings.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/pipelinetoggle/key",
+					"TitleAlignment": "middle"
+				},
+				{
+					"Image": "imgs/actions/pipelinetoggle/on",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "Webcam Tools",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Launch, monitor, and control a self-hosted webcam app from your Stream Deck.",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "11"
+		}
+	],
+	"Nodejs": {
+		"Version": "24",
+		"Debug": "disabled"
+	},
+	"UUID": "com.webcam-tools.streamdeck"
+}

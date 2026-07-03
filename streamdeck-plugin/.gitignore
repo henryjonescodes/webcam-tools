@@ -1,0 +1,5 @@
+node_modules/
+com.webcam-tools.streamdeck.sdPlugin/bin/
+logs/
+*.log
+*.streamDeckPlugin

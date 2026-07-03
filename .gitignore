@@ -1,0 +1,21 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+
+# Runtime data (events, videos, thumbnails, config) -- not source
+backend/data/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Stream Deck plugin
+streamdeck-plugin/node_modules/
+streamdeck-plugin/com.webcam-tools.streamdeck.sdPlugin/bin/
+streamdeck-plugin/com.webcam-tools.streamdeck.streamDeckPlugin
+streamdeck-plugin/com.webcam-tools.streamdeck.sdPlugin/logs/
+
+# Editors/OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+	"id": "webcam-tools-dial",
+	"items": [
+		{
+			"key": "label",
+			"type": "text",
+			"rect": [0, 4, 200, 32],
+			"value": "",
+			"alignment": "center",
+			"font": { "size": 18, "weight": 600 },
+			"color": "white"
+		},
+		{
+			"key": "value_bar",
+			"type": "bar",
+			"rect": [14, 56, 172, 24],
+			"value": 0,
+			"range": { "min": 0, "max": 100 },
+			"subtype": 0,
+			"bar_fill_c": "#6b9eff",
+			"bar_bg_c": "#2c303a",
+			"bar_border_c": "#6b9eff"
+		}
+	]
+}

@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+opencv-python
+numpy
+imageio-ffmpeg
+zeroconf
+pygrabber; sys_platform == "win32"
+pywin32; sys_platform == "win32"

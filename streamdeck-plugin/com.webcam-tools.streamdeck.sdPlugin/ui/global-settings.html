@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Webcam Tools Settings</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+</head>
+
+<body>
+    <!--
+        Shared across every Webcam Tools action (Launch / Status / Open Web App / Live
+        Feed / Dial) via global settings -- set it once here, not per-button.
+    -->
+    <sdpi-item label="Server URL">
+        <sdpi-textfield
+            setting="baseUrl"
+            global
+            placeholder="http://webcam-tools.local:8000">
+        </sdpi-textfield>
+    </sdpi-item>
+
+    <sdpi-item label="start.bat path">
+        <sdpi-textfield
+            setting="scriptPath"
+            global
+            placeholder="C:\path\to\webcam-tools\start.bat">
+        </sdpi-textfield>
+    </sdpi-item>
+
+    <sdpi-item label="">
+        <span style="opacity: 0.7; font-size: 12px;">
+            Only the Launch action needs the start.bat path (to start the server if
+            it's not already running). All actions use the same Server URL.
+        </span>
+    </sdpi-item>
+</body>
+
+</html>

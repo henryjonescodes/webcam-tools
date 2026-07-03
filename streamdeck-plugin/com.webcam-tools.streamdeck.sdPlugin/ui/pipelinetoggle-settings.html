@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Pipeline Toggle Settings</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+</head>
+
+<body>
+    <!--
+        The dropdown below is populated at runtime by the plugin (see
+        pipelinetoggle.ts's onPropertyInspectorDidAppear), which asks the
+        server what detectors/actions/image toggles currently exist --
+        deliberately not a hardcoded list, so this stays agnostic to
+        whatever gets added to the pipeline later.
+    -->
+    <sdpi-item label="Controls">
+        <select id="target" style="width: 100%;">
+            <option value="">Loading…</option>
+        </select>
+    </sdpi-item>
+
+    <sdpi-item label="">
+        <span style="opacity: 0.7; font-size: 12px;">
+            Press to toggle on/off. Works for any detector (motion, person),
+            action (record clip, sound alarm, webhook), or image-processing
+            stage (anti-glare) -- pick which one above. Server URL is
+            configured on the other Webcam Tools actions (it's shared).
+        </span>
+    </sdpi-item>
+
+    <script>
+        let websocket = null;
+        let uuid = null;
+        let currentSettings = {};
+
+        function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
+            uuid = inUUID;
+            const actionInfo = JSON.parse(inActionInfo);
+            currentSettings = (actionInfo.payload && actionInfo.payload.settings) || {};
+
+            websocket = new WebSocket("ws://127.0.0.1:" + inPort);
+            websocket.onopen = () => {
+                websocket.send(JSON.stringify({ event: inRegisterEvent, uuid: inUUID }));
+            };
+            websocket.onmessage = (evt) => {
+                const msg = JSON.parse(evt.data);
+                if (msg.event === "sendToPropertyInspector" && msg.payload && msg.payload.toggles) {
+                    populate(msg.payload.toggles);
+                }
+            };
+        }
+
+        function populate(toggles) {
+            const select = document.getElementById("target");
+            select.innerHTML = "";
+            if (toggles.length === 0) {
+                const opt = document.createElement("option");
+                opt.textContent = "No toggles found -- is the server reachable?";
+                select.appendChild(opt);
+                return;
+            }
+            for (const t of toggles) {
+                const opt = document.createElement("option");
+                opt.value = t.category + ":" + t.name;
+                opt.textContent = t.category + " / " + t.name.replace(/_/g, " ");
+                select.appendChild(opt);
+            }
+            if (currentSettings.target) {
+                select.value = currentSettings.target;
+            }
+        }
+
+        document.getElementById("target").addEventListener("change", (e) => {
+            currentSettings.target = e.target.value;
+            websocket.send(JSON.stringify({ event: "setSettings", context: uuid, payload: currentSettings }));
+        });
+    </script>
+</body>
+
+</html>
