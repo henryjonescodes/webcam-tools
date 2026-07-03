@@ -279,11 +279,15 @@ def get_toggles():
     actions, or image-processing stages alike without knowing in advance
     which one it'll be pointed at (see the plugin's Pipeline Toggle action)."""
     status = camera.status
+    objects_enabled = next((d["enabled"] for d in status["detectors"] if d["name"] == "objects"), True)
     return {
         "detectors": [{"name": d["name"], "enabled": d["enabled"]} for d in status["detectors"]],
         "actions": status["actions"],
         "image": [{"name": name, "enabled": enabled} for name, enabled in camera.get_image_toggles().items()],
-        "classes": [{"name": name, "enabled": enabled} for name, enabled in camera.get_object_classes().items()],
+        "classes": [
+            {"name": name, "enabled": enabled and objects_enabled}
+            for name, enabled in camera.get_object_classes().items()
+        ],
     }
 
 

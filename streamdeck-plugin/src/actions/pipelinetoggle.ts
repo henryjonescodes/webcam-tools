@@ -137,6 +137,6 @@ export class PipelineToggleAction extends SingletonAction<Settings> {
 			return;
 		}
 		await a.setState(entry.enabled ? 1 : 0);
-		await a.setTitle(`${entry.name.replace(/_/g, " ")}\n${entry.enabled ? "On" : "Off"}`);
+		await a.setTitle(entry.name.replace(/_/g, " "));
 	}
 }
