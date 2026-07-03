@@ -101,6 +101,7 @@ export interface Toggles {
   detectors: ToggleEntry[];
   actions: ToggleEntry[];
   image: ToggleEntry[];
+  classes: ToggleEntry[];
 }
 
 export async function getToggles(): Promise<Toggles> {
@@ -109,7 +110,7 @@ export async function getToggles(): Promise<Toggles> {
 }
 
 export async function toggleGeneric(
-  category: "detectors" | "actions" | "image",
+  category: "detectors" | "actions" | "image" | "classes",
   name: string,
   enabled: boolean
 ): Promise<ToggleEntry> {

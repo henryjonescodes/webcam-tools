@@ -86,29 +86,49 @@ Webcam") — no restart needed. The choice is persisted to
 capture handle so another app (Zoom, Teams, OBS) can open the same device —
 useful since most webcams only allow one exclusive reader at a time.
 
-## Detection: motion and person
+## Detection: motion and objects
 
 Two detectors ship out of the box, both toggleable from the **Pipeline**
 tab:
 
 - **Motion** — cheap frame-differencing, runs on every captured frame. Fast
   enough to never compete for camera bandwidth.
-- **Person** — OpenCV's built-in HOG pedestrian detector, distinguishes an
-  actual person from a passing car or blowing leaves. Meaningfully more
-  expensive per-check, so it runs on its **own background thread and
-  timer**, independent of the capture loop — see
-  [Detectors vs. the image pipeline](#detectors-vs-the-image-pipeline)
-  below for why that split exists.
+- **Objects** — real object detection via YOLOv4-tiny (run through OpenCV's
+  `cv2.dnn`, so **no PyTorch/ultralytics install** — it's a single ~24MB
+  weights file that auto-downloads to `backend/data/models/` on first use).
+  Detects a configurable set of classes; **person**, **bicycle**, and
+  **package** ship enabled/available, each individually toggleable in the
+  Pipeline tab (or from a Stream Deck Pipeline Toggle button). Fires a
+  distinct event *type* per class, so a webhook or the Recording Status cell
+  naturally reads `person` / `bicycle` / `package`. Much better than the old
+  HOG pedestrian detector this replaced. Runs on its **own background thread
+  and timer** (see [Detectors vs. the image pipeline](#detectors-vs-the-image-pipeline))
+  since inference is ~100ms/frame on CPU.
+
+  Two design notes worth knowing:
+  - **No manual zones — proximity gating instead.** Rather than making you
+    paint a region-of-interest per camera, the detector just ignores any
+    detection whose box is smaller than ~2% of the frame. Object detection
+    is already semantic ("that's a person"), so all that's left is "is it
+    close enough to care?" — which automatically filters distant street
+    traffic without any per-camera setup.
+  - **"Package" is approximate.** COCO (what the model was trained on) has no
+    cardboard-box class, so `package` maps to the carried-luggage classes it
+    *does* know (backpack / handbag / suitcase). That reliably catches a
+    delivery person carrying something up to the door — person + package
+    firing together is a decent "someone's dropping something off" signal —
+    but a bare cardboard box on the step won't reliably trip it. A true
+    parcel detector would need a custom-trained model (see `DREAMS.md`).
 
 ## The pipeline: detectors → actions, wired per-stage
 
 The **Pipeline** tab shows every detector and every action, plus a chip
 grid wiring which detector's events fire which action — click a chip to
-link/unlink that specific pair (e.g. have Person fire the webhook but not
+link/unlink that specific pair (e.g. have Objects fire the webhook but not
 Motion, or vice versa). Nothing's hardcoded: this reads from a single
-`/api/toggles` endpoint that reports every detector, action, and
-image-processing toggle that currently exists, so a new one you add shows
-up automatically.
+`/api/toggles` endpoint that reports every detector, action,
+image-processing toggle, and object class that currently exists, so a new
+one you add shows up automatically.
 
 **Actions** that ship today:
 - **Record clip** — an ~10s H.264 clip (2s pre-roll + 8s post-trigger).
@@ -138,7 +158,7 @@ Two independent loops feed the pipeline:
   detector (Motion). Nothing here may block for long.
 - **Slow loop** — its own thread and timer, reading whatever frame is
   freshest instead of taking one off the capture loop. Any `heavy = True`
-  detector (Person) runs here, so an expensive check can never stall a
+  detector (Objects) runs here, so an expensive check can never stall a
   camera read or drop frames.
 
 Set `heavy = True` on a new `Detector` subclass to put it on the slow loop;

@@ -53,3 +53,29 @@ class plus a config UI for the URL(s).
 - UI: a simple settings panel (URL field(s) + enable toggle) is enough;
   doesn't need its own tab, could live in the Pipeline tab next to the
   action's existing enable switch.
+
+---
+
+## Real parcel / cardboard-box detection
+
+**The gap:** the `objects` detector's `package` class is an approximation —
+COCO (what YOLOv4-tiny was trained on) has no cardboard-box class, so
+`package` currently maps to backpack/handbag/suitcase. That catches "delivery
+person carrying something," but a bare box left on the step won't reliably
+trip it.
+
+**What it'd take:** a small custom-trained model. Options, roughly ascending
+effort:
+- Fine-tune a YOLO-nano on an open "package/parcel on doorstep" dataset (a
+  few exist on Roboflow Universe) and drop the resulting weights into
+  `data/models/` — the `ObjectDetector` is already structured so the model
+  files are the only thing that'd change.
+- Or a lighter heuristic: a "left-behind object" detector — background
+  subtraction that flags a *new stationary blob* that appears and persists
+  (a box dropped and left), which sidesteps needing a trained class at all
+  and composes with the existing motion pipeline.
+
+**Why parked:** the carried-luggage approximation covers most of the actual
+"someone's at the door dropping something off" signal, and a custom model is
+a real training/hosting commitment for a hobby cam. The `left-behind blob`
+heuristic is the more interesting cheap experiment if this gets picked up.

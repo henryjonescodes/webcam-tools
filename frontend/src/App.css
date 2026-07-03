@@ -538,6 +538,46 @@ body {
   cursor: default;
 }
 
+.pipeline-classes {
+  margin-bottom: 14px;
+}
+
+.pipeline-classes-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.pipeline-classes-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pipeline-class-chip {
+  background: #23262e;
+  color: #6b7280;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.pipeline-class-chip:hover {
+  border-color: #3a3d45;
+}
+
+.pipeline-class-chip-on {
+  background: #1f3a2c;
+  color: #6edc8c;
+  border-color: #2f5a44;
+}
+
 .empty {
   color: #6b7280;
   font-size: 13px;

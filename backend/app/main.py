@@ -283,6 +283,7 @@ def get_toggles():
         "detectors": [{"name": d["name"], "enabled": d["enabled"]} for d in status["detectors"]],
         "actions": status["actions"],
         "image": [{"name": name, "enabled": enabled} for name, enabled in camera.get_image_toggles().items()],
+        "classes": [{"name": name, "enabled": enabled} for name, enabled in camera.get_object_classes().items()],
     }
 
 
@@ -298,7 +299,13 @@ def toggle_generic(category: str, name: str, body: DetectorToggle):
         except ValueError as e:
             raise HTTPException(404, str(e))
         return {"name": name, "enabled": body.enabled}
-    raise HTTPException(404, f"no such toggle category {category!r} (expected detectors, actions, or image)")
+    if category == "classes":
+        try:
+            camera.set_object_class(name, body.enabled)
+        except ValueError as e:
+            raise HTTPException(404, str(e))
+        return {"name": name, "enabled": body.enabled}
+    raise HTTPException(404, f"no such toggle category {category!r} (expected detectors, actions, image, or classes)")
 
 
 @app.get("/api/webhook")

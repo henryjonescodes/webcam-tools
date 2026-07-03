@@ -13,7 +13,7 @@ from .actions.webhook import WebhookAction
 from .config import load_config, save_config
 from .detection.base import Detector
 from .detection.motion import MotionDetector
-from .detection.person import PersonDetector
+from .detection.objects import DEFAULT_CLASSES, ObjectDetector
 from .events import EventStore
 
 JPEG_QUALITY = 80
@@ -111,7 +111,14 @@ class CameraStream:
         self.events = events
         self.camera_index = camera_index if camera_index is not None else resolve_initial_camera_index()
         self._requested_index = self.camera_index
-        self.detectors: list[Detector] = [MotionDetector(), PersonDetector()]
+        # Object detection watches a configurable set of classes; the detector
+        # reads self._object_classes lazily at inference time, so it's fine
+        # that it's populated a few lines below.
+        self._object_classes: dict = {**DEFAULT_CLASSES, **load_config().get("object_classes", {})}
+        self.detectors: list[Detector] = [
+            MotionDetector(),
+            ObjectDetector(lambda: self._object_classes),
+        ]
         self.actions: list[Action] = [RecordClipAction(events, lambda: self._fps), SoundAlarmAction(), WebhookAction()]
 
         self._cap: Optional[cv2.VideoCapture] = None
@@ -221,6 +228,18 @@ class CameraStream:
             raise ValueError(f"no image toggle named {name}")
         self._image_toggles[name] = enabled
         save_config(image_toggles=self._image_toggles)
+
+    def get_object_classes(self) -> dict:
+        """Which object-detection classes (person/bicycle/package) are armed.
+        Individually toggleable so the same generic Pipeline Toggle button
+        (web + Stream Deck) can arm 'watch for bikes' vs 'watch for people'."""
+        return dict(self._object_classes)
+
+    def set_object_class(self, name: str, enabled: bool):
+        if name not in self._object_classes:
+            raise ValueError(f"no object class named {name}")
+        self._object_classes[name] = enabled
+        save_config(object_classes=self._object_classes)
 
     def reset_all_adjustments(self) -> dict:
         """Resets both layers (hardware + post-processing) to their defaults
@@ -443,7 +462,7 @@ class CameraStream:
         loop, so a slow detector runs on its own schedule and can never
         block a camera read. The poll interval here is just a check-in
         cadence; each heavy detector self-throttles its actual (expensive)
-        work internally (see PersonDetector's run_interval)."""
+        work internally (see ObjectDetector's run_interval)."""
         POLL_INTERVAL = 0.2
 
         while not self._stop.is_set():

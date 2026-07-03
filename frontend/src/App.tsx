@@ -73,6 +73,7 @@ export default function App() {
   const [rotation, setRot] = useState<Rotation | null>(null);
   const [webhookUrl, setWebhookUrlInput] = useState("");
   const [imageToggles, setImageToggles] = useState<ToggleEntry[]>([]);
+  const [classToggles, setClassToggles] = useState<ToggleEntry[]>([]);
   const [logOpen, setLogOpen] = useState(true);
   const [cameraOpen, setCameraOpen] = useState(true);
 
@@ -109,7 +110,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    getToggles().then((t) => setImageToggles(t.image)).catch(() => {});
+    getToggles()
+      .then((t) => {
+        setImageToggles(t.image);
+        setClassToggles(t.classes);
+      })
+      .catch(() => {});
   }, []);
 
   const handleCameraChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -154,6 +160,11 @@ export default function App() {
   const handleImageToggle = async (name: string, currentEnabled: boolean) => {
     const updated = await toggleGeneric("image", name, !currentEnabled);
     setImageToggles((toggles) => toggles.map((t) => (t.name === name ? updated : t)));
+  };
+
+  const handleClassToggle = async (name: string, currentEnabled: boolean) => {
+    const updated = await toggleGeneric("classes", name, !currentEnabled);
+    setClassToggles((toggles) => toggles.map((t) => (t.name === name ? updated : t)));
   };
 
   const handleOpenFolder = async () => {
@@ -405,6 +416,24 @@ export default function App() {
                   </div>
                 ))}
               </div>
+
+              {classToggles.length > 0 && (
+                <div className="pipeline-classes">
+                  <span className="pipeline-classes-label">Objects detector watches for:</span>
+                  <div className="pipeline-classes-chips">
+                    {classToggles.map((c) => (
+                      <button
+                        key={c.name}
+                        className={`pipeline-class-chip ${c.enabled ? "pipeline-class-chip-on" : ""}`}
+                        onClick={() => handleClassToggle(c.name, c.enabled)}
+                        title={c.enabled ? `${c.name}: on — click to ignore` : `${c.name}: off — click to watch`}
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="pipeline-stages">
                 {(status?.detectors ?? []).map((d) => (
