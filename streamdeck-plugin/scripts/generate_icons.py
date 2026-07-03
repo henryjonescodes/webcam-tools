@@ -92,13 +92,22 @@ def glyph_toggle_off(d, s):
 
 
 def glyph_toggle_on(d, s):
+    # Manifest States are shared across every Pipeline Toggle instance --
+    # can't be per-instance-icon-aware even when a key has its own custom
+    # off-icon (e.g. a slashed bell/eye/camera from an adopted icon pack),
+    # so this stays deliberately generic: a plain green "enabled" badge in
+    # a similar thin-stroke line-art weight, meant to read fine next to any
+    # icon it gets paired with rather than trying to match one specifically.
     c = s / 2
-    r = s * 0.28
-    w = max(2, int(s * 0.08))
-    d.arc([c - r, c - r, c + r, c + r], start=-235, end=55, fill=GREEN, width=w)
-    d.line([c, s * 0.16, c, s * 0.5], fill=GREEN, width=w)
-    rr = r * 0.32
-    d.ellipse([c - rr, c - rr, c + rr, c + rr], fill=GREEN)
+    r = s * 0.3
+    w = max(2, int(s * 0.065))
+    d.ellipse([c - r, c - r, c + r, c + r], outline=GREEN, width=w)
+    d.line(
+        [c - r * 0.45, c + r * 0.05, c - r * 0.12, c + r * 0.4, c + r * 0.5, c - r * 0.35],
+        fill=GREEN,
+        width=w,
+        joint="curve",
+    )
 
 
 ACTIONS = {
